@@ -1,6 +1,3 @@
-# Applies to the build context used for the backend image
-# (docker build -f backend/Dockerfile . run from the project root).
-
 # Backend
 backend/__pycache__/
 backend/**/__pycache__/
@@ -16,8 +13,7 @@ ai_engine/__pycache__/
 ai_engine/**/__pycache__/
 ai_engine/chroma_db/
 
-# Frontend (not needed for the backend build, but large — keep the
-# context small and the build fast)
+# Frontend 
 frontend/node_modules/
 frontend/.next/
 frontend/.env.local
