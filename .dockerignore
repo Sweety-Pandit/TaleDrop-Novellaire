@@ -1,0 +1,30 @@
+# Applies to the build context used for the backend image
+# (docker build -f backend/Dockerfile . run from the project root).
+
+# Backend
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.db
+backend/uploads/
+backend/chroma_db/
+backend/.env
+backend/.pytest_cache/
+backend/**/*.egg-info/
+
+# AI engine
+ai_engine/__pycache__/
+ai_engine/**/__pycache__/
+ai_engine/chroma_db/
+
+# Frontend (not needed for the backend build, but large — keep the
+# context small and the build fast)
+frontend/node_modules/
+frontend/.next/
+frontend/.env.local
+
+# General
+.git/
+.gitignore
+**/*.pyc
+**/*.pyo
+.DS_Store

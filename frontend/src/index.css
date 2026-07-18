@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  /* Fonts are loaded via the <link> tag in index.html (Google Fonts CSS2
+     API), not next/font — so unlike the Next.js version, these variables
+     are declared here rather than injected by a font loader. */
+  --font-fraunces: "Fraunces", Georgia, serif;
+  --font-inter: "Inter", system-ui, sans-serif;
+  --font-newsreader: "Newsreader", Georgia, serif;
+  --font-plex-mono: "IBM Plex Mono", monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-ink text-parchment font-body antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display;
+  }
+
+  ::selection {
+    @apply bg-ember/40 text-parchment;
+  }
+
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ember ring-offset-2 ring-offset-ink;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .prose-reading > * + * {
+    margin-top: 1.25em;
+  }
+
+  .prose-reading h1,
+  .prose-reading h2,
+  .prose-reading h3 {
+    @apply font-display font-medium text-parchment;
+    margin-top: 2em;
+  }
+
+  .prose-reading h1 {
+    font-size: 1.6em;
+  }
+
+  .prose-reading h2 {
+    font-size: 1.35em;
+  }
+
+  .prose-reading h3 {
+    font-size: 1.15em;
+  }
+
+  .prose-reading strong {
+    @apply font-semibold text-parchment;
+  }
+
+  .prose-reading em {
+    font-style: italic;
+  }
+
+  .prose-reading blockquote {
+    @apply border-l-2 border-ember pl-4 italic text-parchment-dim;
+  }
+
+  .prose-reading hr {
+    @apply my-8 border-ink-border;
+  }
+
+  .prose-reading ul,
+  .prose-reading ol {
+    padding-left: 1.5em;
+  }
+
+  .prose-reading ul {
+    list-style-type: disc;
+  }
+
+  .prose-reading ol {
+    list-style-type: decimal;
+  }
+
+  .prose-reading a {
+    @apply text-ember underline underline-offset-2;
+  }
+
+  .prose-reading code {
+    @apply rounded bg-ink-soft px-1.5 py-0.5 font-mono text-[0.85em];
+  }
+}
