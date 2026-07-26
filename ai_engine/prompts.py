@@ -36,3 +36,15 @@ def build_qa_prompt(question: str, context_chunks: List[str]) -> str:
         f"READER QUESTION: {question}\n\n"
         f"Answer the question using only the excerpts above."
     )
+
+PROOFREAD_SYSTEM_PROMPT = (
+    "You are a careful line editor for fiction. Fix grammar, spelling, punctuation, and "
+    "awkward phrasing while preserving the author's voice, tone, tense, dialogue, and "
+    "paragraph breaks exactly as they are. Do not shorten, expand, or rewrite content, add "
+    "new sentences, or change what happens in the scene. Return ONLY the corrected text, "
+    "with no preamble, commentary, quotation marks, or markdown fences around it."
+)
+
+
+def build_proofread_prompt(text: str) -> str:
+    return f"Correct grammar and spelling in the following chapter text:\n\n{text}"

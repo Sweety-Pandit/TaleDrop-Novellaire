@@ -18,7 +18,7 @@ from app.models import Bookmark, Chapter, ChapterStatus, Novel, NovelGenre, Nove
 from app.services import chapter_service
 
 MIN_SUMMARY_SOURCE_CHARS = 200
-
+MAX_PROOFREAD_CHARS = 12000
 
 def _accessible_chapters(db: Session, novel: Novel, viewer: Optional[User]) -> List[Chapter]:
     """Return the list of chapters the viewer is allowed to read."""
@@ -62,7 +62,16 @@ def generate_novel_summary(db: Session, novel: Novel, viewer: Optional[User]):
     result = agents.run_summary(novel.title, combined_text)
     return result["summary"]
 
-
+def proofread_text(text: str) -> str:
+    if not text or not text.strip():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No text provided to proofread")
+    if len(text) > MAX_PROOFREAD_CHARS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Text is too long to proofread in one go (max {MAX_PROOFREAD_CHARS} characters)",
+        )
+    result = agents.run_proofread(text)
+    return result["corrected_text"]
 
 # RAG indexing + Q&A
 def reindex_novel(db: Session, novel: Novel) -> int:
