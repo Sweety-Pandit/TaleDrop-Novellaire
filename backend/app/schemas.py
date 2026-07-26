@@ -345,6 +345,8 @@ class ChapterOut(BaseModel):
     locked: bool = False
     created_at: datetime
     updated_at: datetime
+    like_count: int = 0
+    liked_by_viewer: bool = False
 
     @classmethod
     def from_model(cls, chapter, locked: bool) -> "ChapterOut":
@@ -361,7 +363,13 @@ class ChapterOut(BaseModel):
             locked=locked,
             created_at=chapter.created_at,
             updated_at=chapter.updated_at,
+            like_count=len(chapter.likes),
+            liked_by_viewer=False,
         )
+
+class ChapterLikeToggleResponse(BaseModel):
+    liked: bool
+    like_count: int
 
 # Review schemas
 class ReviewCreate(BaseModel):

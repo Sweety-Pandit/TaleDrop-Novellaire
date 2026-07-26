@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import type { Comment } from "@/types";
 
-export function CommentThread({ novelId }: { novelId: string }) {
+export function CommentThread({ novelId, chapterId }: { novelId: string; chapterId?: string }) {
   const user = useAuthStore((s) => s.user);
   const [comments, setComments] = React.useState<Comment[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -14,10 +14,10 @@ export function CommentThread({ novelId }: { novelId: string }) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const load = React.useCallback(() => {
-    listComments(novelId)
+    listComments(novelId, chapterId)
       .then(setComments)
       .finally(() => setIsLoading(false));
-  }, [novelId]);
+  }, [novelId, chapterId]);
 
   React.useEffect(() => {
     load();
@@ -28,7 +28,7 @@ export function CommentThread({ novelId }: { novelId: string }) {
     if (!content.trim()) return;
     setIsSubmitting(true);
     try {
-      await postComment(novelId, content);
+      await postComment(novelId, content, chapterId);
       setContent("");
       load();
     } finally {

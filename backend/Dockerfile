@@ -1,5 +1,6 @@
 FROM python:3.12-slim
 
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
@@ -9,12 +10,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app/backend
 
 COPY backend/requirements.txt ./requirements.txt
+
 RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
     && pip install --no-cache-dir -r requirements.txt
 
 COPY backend/ ./
 COPY ai_engine/ /app/ai_engine/
-
 
 RUN mkdir -p uploads chroma_db
 
