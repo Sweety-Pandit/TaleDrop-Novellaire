@@ -24,3 +24,8 @@ export async function getPurchaseHistory(): Promise<PurchaseHistoryItem[]> {
   const { data } = await api.get<PurchaseHistoryItem[]>("/payments/me");
   return data;
 }
+
+export async function demoPurchaseChapter(chapterId: string): Promise<PurchaseHistoryItem> {
+  const { data } = await api.post<PurchaseHistoryItem>(`/payments/chapters/${chapterId}/demo-purchase`);
+  return data;
+}

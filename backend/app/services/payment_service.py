@@ -74,6 +74,37 @@ def initiate_chapter_purchase(
     db.refresh(payment)
     return payment, order
 
+def demo_purchase_chapter(db: Session, user: User, chapter_id: uuid.UUID) -> Payment:
+    """
+    Grant access to a premium chapter without going through Razorpay at
+    all — used while Razorpay isn't wired up to real credentials, so
+    the purchase flow can still be demoed end-to-end.
+    """
+    chapter = (
+        db.query(Chapter).options(joinedload(Chapter.novel)).filter(Chapter.id == chapter_id).first()
+    )
+    if chapter is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chapter not found")
+    if not chapter.is_premium or chapter.price <= 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="This chapter is not a paid chapter"
+        )
+
+    _assert_chapter_not_already_purchased(db, user, chapter)
+
+    payment = Payment(
+        user_id=user.id,
+        novel_id=chapter.novel_id,
+        chapter_id=chapter.id,
+        amount=chapter.price,
+        currency="INR",
+        razorpay_order_id=f"demo_{uuid.uuid4()}",
+        status=PaymentStatus.SUCCESS,
+    )
+    db.add(payment)
+    db.commit()
+    db.refresh(payment)
+    return payment
 
 def initiate_novel_purchase(db: Session, user: User, novel_id: uuid.UUID) -> Tuple[Payment, dict]:
     """Create a PENDING payment + Razorpay order for whole-novel premium access."""

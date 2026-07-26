@@ -2,8 +2,7 @@ import * as React from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Lock, ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { getNovelBySlug, listNovelChapters, getChapter, recordReadingProgress, toggleChapterLike } from "@/lib/novels-api";
-import { initiateChapterPurchase, confirmPayment } from "@/lib/payments-api";
-import { openRazorpayCheckout } from "@/lib/razorpay";
+import { demoPurchaseChapter } from "@/lib/payments-api";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { ChapterContent } from "@/components/reader/chapter-content";
@@ -61,14 +60,8 @@ export default function ChapterReaderPage() {
     setIsPurchasing(true);
     setError(null);
     try {
-      const order = await initiateChapterPurchase(chapter.id);
-      const result = await openRazorpayCheckout(order, {
-        title: chapter.title,
-        userEmail: user.email,
-        userName: user.display_name,
-      });
-      await confirmPayment(result);
-      await load(); // re-fetch: chapter should now come back unlocked
+      await demoPurchaseChapter(chapter.id);
+      navigate(`/novels/${slug}/chapters/${chapterNumber}/unlocked`);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
