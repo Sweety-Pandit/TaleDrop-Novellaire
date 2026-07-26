@@ -1,15 +1,17 @@
 import * as React from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { Lock, ChevronLeft, ChevronRight } from "lucide-react";
-import { getNovelBySlug, listNovelChapters, getChapter, recordReadingProgress } from "@/lib/novels-api";
+import { Lock, ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { getNovelBySlug, listNovelChapters, getChapter, recordReadingProgress, toggleChapterLike } from "@/lib/novels-api";
 import { initiateChapterPurchase, confirmPayment } from "@/lib/payments-api";
 import { openRazorpayCheckout } from "@/lib/razorpay";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { ChapterContent } from "@/components/reader/chapter-content";
 import { ReadingProgressRail } from "@/components/reader/reading-progress-rail";
+import { CommentThread } from "@/components/novel/comment-thread";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { extractErrorMessage } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import type { Chapter, ChapterListItem, Novel } from "@/types";
 
 export default function ChapterReaderPage() {
@@ -24,6 +26,7 @@ export default function ChapterReaderPage() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [isPurchasing, setIsPurchasing] = React.useState(false);
+  const [isLiking, setIsLiking] = React.useState(false);
 
   const load = React.useCallback(async () => {
     if (!isReady) return;
@@ -73,6 +76,19 @@ export default function ChapterReaderPage() {
     }
   }
 
+  async function handleToggleLike() {
+    if (!chapter || isLiking) return;
+    setIsLiking(true);
+    try {
+      const result = await toggleChapterLike(slug, chapterNumber);
+      setChapter({ ...chapter, liked_by_viewer: result.liked, like_count: result.like_count });
+    } catch (err) {
+      setError(extractErrorMessage(err));
+    } finally {
+      setIsLiking(false);
+    }
+  }
+
   if (!isReady || isLoading) {
     return <p className="mx-auto max-w-2xl px-6 py-10 font-body text-sm text-slate-light">Loading…</p>;
   }
@@ -115,7 +131,24 @@ export default function ChapterReaderPage() {
             )}
           </div>
         ) : (
-          <ChapterContent content={chapter.content ?? ""} />
+          <>
+            <ChapterContent content={chapter.content ?? ""} />
+
+            <button
+              type="button"
+              onClick={handleToggleLike}
+              disabled={isLiking}
+              className={cn(
+                "mt-8 flex items-center gap-2 rounded border border-ink-border px-4 py-2 font-body text-sm transition-colors",
+                chapter.liked_by_viewer
+                  ? "border-ember text-ember"
+                  : "text-slate-light hover:border-ember hover:text-ember"
+              )}
+            >
+              <Heart className={cn("h-4 w-4", chapter.liked_by_viewer && "fill-ember")} />
+              {chapter.liked_by_viewer ? "Liked" : "Like"} · {chapter.like_count}
+            </button>
+          </>
         )}
 
         <div className="mt-12 flex items-center justify-between border-t border-ink-border pt-6">
@@ -140,6 +173,12 @@ export default function ChapterReaderPage() {
             <span />
           )}
         </div>
+
+        {!chapter.locked && (
+          <div className="mt-12 border-t border-ink-border pt-8">
+            <CommentThread novelId={novel.id} chapterId={chapter.id} />
+          </div>
+        )}
       </div>
     </main>
   );

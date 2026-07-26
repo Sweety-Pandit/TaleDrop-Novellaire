@@ -144,6 +144,9 @@ class User(Base, TimestampMixin):
     bookmarks: Mapped[List["Bookmark"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    chapter_likes: Mapped[List["ChapterLike"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
     reading_history: Mapped[List["ReadingHistory"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
@@ -238,6 +241,9 @@ class Chapter(Base, TimestampMixin):
     bookmarks: Mapped[List["Bookmark"]] = relationship(
         back_populates="chapter", cascade="all, delete-orphan"
     )
+    likes: Mapped[List["ChapterLike"]] = relationship(
+        back_populates="chapter", cascade="all, delete-orphan"
+    )
     reading_history: Mapped[List["ReadingHistory"]] = relationship(
         back_populates="chapter", cascade="all, delete-orphan"
     )
@@ -308,6 +314,23 @@ class Bookmark(Base, TimestampMixin):
         UniqueConstraint("user_id", "novel_id", "chapter_id", name="uq_user_novel_chapter_bookmark"),
     )
 
+class ChapterLike(Base, TimestampMixin):
+    __tablename__ = "chapter_likes"
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    chapter_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("chapters.id", ondelete="CASCADE"), nullable=False
+    )
+
+    user: Mapped["User"] = relationship(back_populates="chapter_likes")
+    chapter: Mapped["Chapter"] = relationship(back_populates="likes")
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "chapter_id", name="uq_user_chapter_like"),
+    )
 
 class ReadingHistory(Base, TimestampMixin):
     __tablename__ = "reading_history"

@@ -4,7 +4,7 @@ from typing import List, Optional
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 
-from app.models import Chapter, ChapterStatus, Novel, NovelStatus, Payment, PaymentStatus, User, UserRole
+from app.models import Chapter, ChapterStatus, Novel, NovelStatus, Payment, PaymentStatus, User, UserRole, ChapterLike
 from app.schemas import ChapterCreate, ChapterUpdate
 
 _CHAPTER_LOAD_OPTIONS = (joinedload(Chapter.novel),)
@@ -187,3 +187,26 @@ def set_chapter_status(
     db.commit()
     db.refresh(chapter)
     return chapter
+
+def get_like_count(db: Session, chapter: Chapter) -> int:
+    return db.query(ChapterLike).filter(ChapterLike.chapter_id == chapter.id).count()
+
+def has_liked(db: Session, chapter: Chapter, viewer: Optional[User]) -> bool:
+    if viewer is None:
+        return False
+    return db.query(ChapterLike).filter(
+        ChapterLike.chapter_id == chapter.id, ChapterLike.user_id == viewer.id
+    ).first() is not None
+
+def toggle_like(db: Session, chapter: Chapter, current_user: User) -> tuple[bool, int]:
+    existing = db.query(ChapterLike).filter(
+        ChapterLike.chapter_id == chapter.id, ChapterLike.user_id == current_user.id
+    ).first()
+    if existing:
+        db.delete(existing)
+        liked = False
+    else:
+        db.add(ChapterLike(chapter_id=chapter.id, user_id=current_user.id))
+        liked = True
+    db.commit()
+    return liked, get_like_count(db, chapter)

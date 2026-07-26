@@ -156,6 +156,8 @@ export interface Chapter {
   locked: boolean;
   created_at: string;
   updated_at: string;
+  like_count: number;
+  liked_by_viewer: boolean;
 }
 
 export interface ReadingHistoryItem {

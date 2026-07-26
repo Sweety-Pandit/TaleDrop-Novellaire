@@ -57,3 +57,10 @@ export async function recordReadingProgress(
 ): Promise<void> {
   await api.post("/users/me/reading-history", { novel_id: novelId, chapter_id: chapterId });
 }
+
+export async function toggleChapterLike(slug: string, chapterNumber: number) {
+  const { data } = await api.post<{ liked: boolean; like_count: number }>(
+    `/novels/${slug}/chapters/${chapterNumber}/like`
+  );
+  return data;
+}

@@ -59,6 +59,7 @@ from app.schemas import (
     UserUpdate,
     ProofreadRequest,
     ProofreadResponse,
+    ChapterLikeToggleResponse,
 )
 from app.config import settings
 from app.search import search_router
@@ -616,8 +617,20 @@ def read_chapter(
     novel = novel_service.get_novel_by_slug_for_viewer(db, slug, viewer)
     chapter = chapter_service.get_chapter_for_viewer(db, novel, chapter_number, viewer)
     locked = chapter_service.is_chapter_locked(db, novel, chapter, viewer)
+    like_count = chapter_service.get_like_count(db, chapter)
+    liked_by_viewer = chapter_service.has_liked(db, chapter, viewer)
     return ChapterOut.from_model(chapter, locked=locked)
 
+@novel_router.post("/{slug}/chapters/{chapter_number}/like", response_model=ChapterLikeToggleResponse)
+def toggle_chapter_like(
+    slug: str, chapter_number: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    novel = novel_service.get_novel_by_slug_for_viewer(db, slug, current_user)
+    chapter = chapter_service.get_chapter_for_viewer(db, novel, chapter_number, current_user)
+    liked, like_count = chapter_service.toggle_like(db, chapter, current_user)
+    return ChapterLikeToggleResponse(liked=liked, like_count=like_count)
 
 api_router.include_router(novel_router)
 
