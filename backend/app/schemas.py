@@ -537,3 +537,10 @@ class AIAskResponse(BaseModel):
 class AIReindexResponse(BaseModel):
     novel_id: uuid.UUID
     chunks_indexed: int
+
+class ProofreadRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=12000)
+
+
+class ProofreadResponse(BaseModel):
+    corrected_text: str

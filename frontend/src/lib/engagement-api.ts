@@ -63,6 +63,11 @@ export async function askNovelQuestion(novelId: string, question: string): Promi
   return data;
 }
 
+export async function proofreadText(text: string): Promise<string> {
+  const { data } = await api.post<{ corrected_text: string }>("/ai/proofread", { text });
+  return data.corrected_text;
+}
+
 export async function getMyRecommendations(): Promise<NovelListItem[]> {
   const { data } = await api.get<NovelListItem[]>("/users/me/recommendations");
   return data;

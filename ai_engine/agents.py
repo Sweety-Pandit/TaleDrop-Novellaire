@@ -4,7 +4,7 @@ from typing import List, TypedDict
 from langgraph.graph import END, StateGraph
 
 from ai_engine import llm, rag
-from ai_engine.prompts import QA_SYSTEM_PROMPT, SUMMARY_SYSTEM_PROMPT, build_qa_prompt, build_summary_prompt
+from ai_engine.prompts import QA_SYSTEM_PROMPT, SUMMARY_SYSTEM_PROMPT, build_qa_prompt, build_summary_prompt, PROOFREAD_SYSTEM_PROMPT, build_proofread_prompt
 
 class QAState(TypedDict, total=False):
     novel_id: uuid.UUID
@@ -78,3 +78,32 @@ def run_summary(novel_title: str, chapters_text: str) -> SummaryState:
     if _summary_graph is None:
         _summary_graph = build_summary_graph()
     return _summary_graph.invoke({"novel_title": novel_title, "chapters_text": chapters_text})
+
+
+class ProofreadState(TypedDict, total=False):
+    text: str
+    corrected_text: str
+
+
+def _proofread_generate_node(state: ProofreadState) -> ProofreadState:
+    prompt = build_proofread_prompt(state["text"])
+    corrected = llm.generate(prompt, system=PROOFREAD_SYSTEM_PROMPT, temperature=0.1)
+    return {"corrected_text": corrected}
+
+
+def build_proofread_graph():
+    graph = StateGraph(ProofreadState)
+    graph.add_node("generate", _proofread_generate_node)
+    graph.set_entry_point("generate")
+    graph.add_edge("generate", END)
+    return graph.compile()
+
+
+_proofread_graph = None
+
+
+def run_proofread(text: str) -> ProofreadState:
+    global _proofread_graph
+    if _proofread_graph is None:
+        _proofread_graph = build_proofread_graph()
+    return _proofread_graph.invoke({"text": text})

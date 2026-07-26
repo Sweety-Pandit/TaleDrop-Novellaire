@@ -57,6 +57,8 @@ from app.schemas import (
     UserOut,
     UserPublicOut,
     UserUpdate,
+    ProofreadRequest,
+    ProofreadResponse,
 )
 from app.config import settings
 from app.search import search_router
@@ -784,6 +786,21 @@ def ask_novel_question(
 
 
 api_router.include_router(ai_router)
+
+ai_tools_router = APIRouter(prefix="/ai", tags=["ai"])
+
+
+@ai_tools_router.post(
+    "/proofread",
+    response_model=ProofreadResponse,
+    dependencies=[Depends(require_roles(UserRole.AUTHOR, UserRole.ADMIN))],
+)
+def proofread_draft_text(payload: ProofreadRequest):
+    corrected = ai_service.proofread_text(payload.text)
+    return ProofreadResponse(corrected_text=corrected)
+
+
+api_router.include_router(ai_tools_router)
 
 
 user_ai_router = APIRouter(prefix="/users", tags=["ai"])
