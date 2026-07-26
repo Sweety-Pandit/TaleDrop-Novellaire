@@ -1,0 +1,41 @@
+# --- Secrets / environment files -----------------------------------------
+# Real .env files contain API keys, DB passwords, JWT secrets, etc.
+# Only the .env.example templates (no real values) should be committed.
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+frontend/.env.local
+
+# --- Python (backend, ai_engine) ------------------------------------------
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# --- Node / frontend --------------------------------------------------------
+node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+
+# --- App data that's generated at runtime, not source ------------------
+backend/uploads/
+backend/chroma_db/
+*.db
+
+# --- OS / editor junk -----------------------------------------------------
+.DS_Store
+Thumbs.db
+*:Zone.Identifier
+.vscode/
+.idea/
+*.swp
+
+# --- Logs -----------------------------------------------------------------
+*.log
