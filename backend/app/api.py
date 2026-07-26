@@ -712,6 +712,15 @@ def initiate_chapter_purchase(
     payment, order = payment_service.initiate_chapter_purchase(db, current_user, chapter_id)
     return _to_order_response(payment, order)
 
+@payment_router.post("/chapters/{chapter_id}/demo-purchase", response_model=PurchaseHistoryItemOut)
+def demo_purchase_chapter(
+    chapter_id: uuid.UUID,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """Grant access to a premium chapter immediately, bypassing Razorpay entirely (demo)."""
+    payment = payment_service.demo_purchase_chapter(db, current_user, chapter_id)
+    return PurchaseHistoryItemOut.from_model(payment)
 
 @payment_router.post("/novels/{novel_id}/initiate", response_model=PaymentOrderOut)
 def initiate_novel_purchase(

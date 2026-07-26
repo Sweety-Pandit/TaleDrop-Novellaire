@@ -18,6 +18,7 @@ import NewChapterPage from "@/app/author/NewChapterPage";
 import EditChapterPage from "@/app/author/EditChapterPage";
 import AuthorProfilePage from "@/app/authors/AuthorProfilePage";
 import NotFoundPage from "@/app/NotFoundPage";
+import ChapterUnlockedPage from "@/app/novels/ChapterUnlockedPage";
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="/novels" element={<BrowseNovelsPage />} />
         <Route path="/novels/:slug" element={<NovelDetailPage />} />
         <Route path="/novels/:slug/chapters/:number" element={<ChapterReaderPage />} />
+        <Route path="/novels/:slug/chapters/:number/unlocked" element={<ChapterUnlockedPage />} />
 
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/library" element={<LibraryPage />} />
